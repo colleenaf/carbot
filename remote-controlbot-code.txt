@@ -1,0 +1,76 @@
+// Remote control bot
+// based on the Randy Sarafan's telepresence robot test code: https://www.instructables.com/id/Telepresence-Robot-Basic-Platform-Part-1/#step18
+// combined with example IR remote code -- your remote codes may vary
+
+#include <Servo.h>
+#include <IRremote.h>
+
+IRrecv irrecv(11);
+decode_results results;
+
+// Tell the Arduino there are to continuous servos
+Servo ContinuousServo1;  
+Servo ContinuousServo2;  
+
+void setup() {
+
+  // Attach the continuous servos to pins 6 and 7
+  ContinuousServo1.attach(6); 
+  ContinuousServo2.attach(7);  
+  
+  Serial.begin(9600);
+  irrecv.enableIRIn();
+
+  // Start the continuous servos in a paused position
+  // if they continue to spin slightly, 
+  // change these numbers until they stop
+  ContinuousServo1.write(94); 
+  ContinuousServo2.write(94); 
+}
+
+void loop() {
+  // Start the continuous servos in a paused position
+  // if they continue to spin slightly, change these numbers until they stop
+  ContinuousServo1.write(94); 
+  ContinuousServo2.write(94);
+  
+  if (irrecv.decode(&results)){
+    Serial.println(results.value, HEX);
+    switch(results.value){ //switches routines based on the IR remote input
+    //If 0xFD609F is selected turn right and pause for a second
+    case 0xFD609F:
+       Serial.println("RIGHT");
+       ContinuousServo1.write(104);
+       ContinuousServo2.write(104);
+       delay(500);
+       break;
+
+    //If 0xFD20DF is selected turn left and pause for a second
+    case 0xFD20DF:
+       Serial.println("LEFT");
+       ContinuousServo1.write(84);
+       ContinuousServo2.write(84);
+       delay(500);
+       break;
+    
+    //If 0xFD807F is selected go forward and pause for a second
+    case 0xFD807F:
+       Serial.println("FORWARD");
+       ContinuousServo1.write(84);
+       ContinuousServo2.write(104);
+       delay(500);
+       break;
+
+    //If 0xFD906F is selected go backward and pause for a second
+    case 0xFD906F:
+       Serial.println("BACKWARD");   
+       ContinuousServo1.write(104);
+       ContinuousServo2.write(84);
+       delay(500);
+       break;
+    }
+    irrecv.resume(); // Receive the next value
+  }
+  // Pause for a millisecond for stability of the code
+  delay(1);
+}
